@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator,
   TextInput,
 } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api'
 import type { ClientProject } from '../../lib/types'
@@ -76,6 +76,12 @@ export default function ProjectsScreen() {
   }
 
   useEffect(() => { load() }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      load(true)
+    }, [])
+  )
 
   const filtered = projects.filter((p) => {
     const q = search.toLowerCase()

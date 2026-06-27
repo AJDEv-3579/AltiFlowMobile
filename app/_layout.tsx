@@ -14,7 +14,7 @@ import {
 import type * as Notifications from 'expo-notifications'
 import { PermissionsAndroid, Platform } from 'react-native'
 
-SplashScreen.preventAutoHideAsync()
+// SplashScreen.preventAutoHideAsync()
 
 async function requestRuntimePermissions() {
   if (Platform.OS !== 'android') return
@@ -37,49 +37,36 @@ async function requestRuntimePermissions() {
 }
 
 function RootLayoutNav() {
-  const { user, loading } = useAuth()
+  console.log('[RootLayoutNav] Render');
+  const auth = useAuth()
+  const user = auth?.user
+  const loading = auth?.loading
   const notifListener = useRef<any>(null)
 
   useEffect(() => {
+    console.log('[RootLayoutNav] loading status:', loading);
     if (!loading) {
-      SplashScreen.hideAsync()
+      SplashScreen.hideAsync().catch((err) => console.warn('Splash hide error:', err))
     }
   }, [loading])
 
   useEffect(() => {
+    console.log('[RootLayoutNav] App started');
     requestRuntimePermissions()
   }, [])
 
   useEffect(() => {
-    if (!user) return
+    console.log('[RootLayoutNav] Auth effect:', { loading, user: user?.username });
+    if (loading) return
 
-    // Register push notifications for Admin/Super-Admin
-    if (['Admin', 'Super-Admin'].includes(user.role)) {
-      registerForPushNotifications().then((token) => {
-        if (token) {
-          savePushTokenToServer(token, Device.deviceName || 'Android Device')
-        }
-      })
+    if (!user) {
+      console.log('[RootLayoutNav] Redirect to (auth)');
+      router.replace('/(auth)')
+    } else {
+      console.log('[RootLayoutNav] Redirect to (app)');
+      router.replace('/(app)/dashboard')
     }
-
-    // Handle tapping a notification → navigate to jobs
-    notifListener.current = addNotificationResponseListener(
-      (response: Notifications.NotificationResponse) => {
-        const data = response.notification.request.content.data as any
-        if (data?.projectId) {
-          router.push(`/(app)/jobs/${data.projectId}`)
-        } else if (data?.screen) {
-          router.push(data.screen)
-        }
-      }
-    )
-
-    return () => {
-      if (notifListener.current) {
-        removeNotificationSubscription(notifListener.current)
-      }
-    }
-  }, [user])
+  }, [user, loading])
 
   return (
     <>

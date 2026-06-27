@@ -19,13 +19,12 @@ function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focu
 export default function AppLayout() {
   const { user, loading } = useAuth()
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/(auth)')
-    }
-  }, [user, loading])
+  if (loading) return null; // Wait for auth check
 
-  if (!user) return null
+  if (!user) {
+    // If not logged in, RootLayout will handle redirect, but as a safety:
+    return null;
+  }
 
   const showAdmin = isInternal(user.role)
   const showClient = isClient(user.role)

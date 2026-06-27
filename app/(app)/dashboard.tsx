@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator,
 } from 'react-native'
+import { useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api'
 import type { DashboardStats } from '../../lib/types'
@@ -65,6 +66,12 @@ export default function DashboardScreen() {
   }
 
   useEffect(() => { load() }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      load(true)
+    }, [])
+  )
 
   const slaTotal = stats ? (stats.bySla.ok + stats.bySla.warning + stats.bySla.breached) : 0
 

@@ -1,9 +1,9 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, RefreshControl,
   ActivityIndicator, Alert,
 } from 'react-native'
-import { useLocalSearchParams, router } from 'expo-router'
+import { useLocalSearchParams, router, useFocusEffect } from 'expo-router'
 import { useAuth } from '../../../context/AuthContext'
 import { api } from '../../../lib/api'
 import type { Job, JobComment } from '../../../lib/types'
@@ -230,6 +230,13 @@ export default function JobsScreen() {
   }
 
   useEffect(() => { load() }, [projectId])
+
+  useFocusEffect(
+    useCallback(() => {
+      // Refresh data when screen comes into focus
+      load(true)
+    }, [projectId])
+  )
 
   // Group jobs by day (matching web app)
   const groupedByDay = useMemo(() => {
