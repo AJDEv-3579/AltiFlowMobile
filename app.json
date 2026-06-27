@@ -63,6 +63,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b2978f39-9ad5-467e-957c-0d33fbf083f1"
+      }
+    },
+    "owner": "alti-flow"
   }
 }
