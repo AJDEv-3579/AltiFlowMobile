@@ -28,8 +28,7 @@
         "VIBRATE",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "softwareKeyboardLayoutMode": "pan",
-      "usesCleartextTraffic": true
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "bundler": "metro",
