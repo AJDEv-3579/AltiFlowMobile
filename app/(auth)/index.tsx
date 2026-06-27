@@ -30,16 +30,21 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0a0f' }}>
-      <StatusBar style="light" />
-      {/* Background gradient circles */}
+    <View style={{ flex: 1, backgroundColor: '#f0f4f8' }}>
+      <StatusBar style="dark" />
+      
+      {/* Background gradients for a modern look */}
       <View style={{
-        position: 'absolute', top: -100, left: -80, width: 350, height: 350,
-        borderRadius: 175, backgroundColor: '#6366f115', opacity: 0.6,
+        position: 'absolute', top: -150, left: -50, width: 400, height: 400,
+        borderRadius: 200, backgroundColor: '#e0e7ff', opacity: 0.8,
       }} />
       <View style={{
-        position: 'absolute', bottom: 0, right: -80, width: 280, height: 280,
-        borderRadius: 140, backgroundColor: '#4f46e510',
+        position: 'absolute', bottom: -100, right: -100, width: 350, height: 350,
+        borderRadius: 175, backgroundColor: '#dbeafe', opacity: 0.9,
+      }} />
+      <View style={{
+        position: 'absolute', top: '30%', right: -50, width: 150, height: 150,
+        borderRadius: 75, backgroundColor: '#ede9fe', opacity: 0.7,
       }} />
 
       <KeyboardAvoidingView
@@ -54,66 +59,68 @@ export default function LoginScreen() {
           <View style={{ alignItems: 'center', marginBottom: 48 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
               <Text style={{
-                fontSize: 36, fontWeight: '800', letterSpacing: -1,
-                color: '#ffffff',
+                fontSize: 42, fontWeight: '800', letterSpacing: -1,
+                color: '#1e1b4b',
               }}>
-                Alti<Text style={{ color: '#818cf8' }}>Flow</Text>
+                Alti<Text style={{ color: '#6366f1' }}>Flow</Text>
               </Text>
             </View>
-            <Text style={{ color: '#71717a', fontSize: 14, letterSpacing: 0.5 }}>
+            <Text style={{ color: '#4f46e5', fontSize: 15, fontWeight: '600', letterSpacing: 0.5 }}>
               Field Operations Platform
             </Text>
           </View>
 
-          {/* Card */}
+          {/* Glassmorphism Card */}
           <View style={{
-            backgroundColor: '#13131f',
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: '#2a2a3d',
-            padding: 28,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.4,
-            shadowRadius: 24,
-            elevation: 12,
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            borderRadius: 24,
+            padding: 32,
+            shadowColor: '#6366f1',
+            shadowOffset: { width: 0, height: 12 },
+            shadowOpacity: 0.1,
+            shadowRadius: 32,
+            elevation: 8,
           }}>
-            <Text style={{ color: '#ffffff', fontSize: 22, fontWeight: '700', marginBottom: 6 }}>
-              Sign In
+            <Text style={{ color: '#1e1b4b', fontSize: 24, fontWeight: '700', marginBottom: 8 }}>
+              Welcome back
             </Text>
-            <Text style={{ color: '#71717a', fontSize: 13, marginBottom: 28 }}>
-              Access your AltiFlow workspace
+            <Text style={{ color: '#64748b', fontSize: 14, marginBottom: 32 }}>
+              Please sign in to your account
             </Text>
 
             {/* Username */}
-            <View style={{ marginBottom: 16 }}>
-              <Text style={{ color: '#a1a1aa', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8, textTransform: 'uppercase' }}>
+            <View style={{ marginBottom: 20 }}>
+              <Text style={{ color: '#475569', fontSize: 12, fontWeight: '600', letterSpacing: 0.5, marginBottom: 8, textTransform: 'uppercase' }}>
                 Username
               </Text>
               <TextInput
                 value={username}
                 onChangeText={setUsername}
                 placeholder="Enter username"
-                placeholderTextColor="#3f3f46"
+                placeholderTextColor="#94a3b8"
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="next"
                 style={{
-                  backgroundColor: '#0f0f1a',
+                  backgroundColor: '#ffffff',
                   borderWidth: 1,
-                  borderColor: '#2a2a3d',
-                  borderRadius: 12,
+                  borderColor: '#e2e8f0',
+                  borderRadius: 14,
                   paddingHorizontal: 16,
                   paddingVertical: 14,
-                  color: '#ffffff',
-                  fontSize: 15,
+                  color: '#0f172a',
+                  fontSize: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.02,
+                  shadowRadius: 4,
                 }}
               />
             </View>
 
             {/* Password */}
-            <View style={{ marginBottom: 28 }}>
-              <Text style={{ color: '#a1a1aa', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8, textTransform: 'uppercase' }}>
+            <View style={{ marginBottom: 32 }}>
+              <Text style={{ color: '#475569', fontSize: 12, fontWeight: '600', letterSpacing: 0.5, marginBottom: 8, textTransform: 'uppercase' }}>
                 Password
               </Text>
               <View style={{ position: 'relative' }}>
@@ -121,27 +128,31 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Enter password"
-                  placeholderTextColor="#3f3f46"
+                  placeholderTextColor="#94a3b8"
                   secureTextEntry={!showPassword}
                   returnKeyType="done"
                   onSubmitEditing={handleLogin}
                   style={{
-                    backgroundColor: '#0f0f1a',
+                    backgroundColor: '#ffffff',
                     borderWidth: 1,
-                    borderColor: '#2a2a3d',
-                    borderRadius: 12,
+                    borderColor: '#e2e8f0',
+                    borderRadius: 14,
                     paddingHorizontal: 16,
                     paddingVertical: 14,
                     paddingRight: 52,
-                    color: '#ffffff',
-                    fontSize: 15,
+                    color: '#0f172a',
+                    fontSize: 16,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.02,
+                    shadowRadius: 4,
                   }}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: 14, top: 14 }}
+                  style={{ position: 'absolute', right: 14, top: 14, padding: 4 }}
                 >
-                  <Text style={{ color: '#71717a', fontSize: 13 }}>
+                  <Text style={{ color: '#6366f1', fontSize: 14, fontWeight: '600' }}>
                     {showPassword ? 'Hide' : 'Show'}
                   </Text>
                 </TouchableOpacity>
@@ -153,24 +164,29 @@ export default function LoginScreen() {
               onPress={handleLogin}
               disabled={loading}
               style={{
-                backgroundColor: loading ? '#4338ca80' : '#6366f1',
-                borderRadius: 12,
+                backgroundColor: loading ? '#818cf8' : '#4f46e5',
+                borderRadius: 14,
                 paddingVertical: 16,
                 alignItems: 'center',
                 flexDirection: 'row',
                 justifyContent: 'center',
                 gap: 8,
+                shadowColor: '#4f46e5',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 4,
               }}
-              activeOpacity={0.8}
+              activeOpacity={0.9}
             >
               {loading && <ActivityIndicator color="#fff" size="small" />}
-              <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 16 }}>
+              <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 16, letterSpacing: 0.5 }}>
                 {loading ? 'Signing in…' : 'Sign In'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={{ color: '#3f3f46', fontSize: 12, textAlign: 'center', marginTop: 32 }}>
+          <Text style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center', marginTop: 40, fontWeight: '500' }}>
             AltiFlow Mobile v1.0 • Secure Access
           </Text>
         </ScrollView>

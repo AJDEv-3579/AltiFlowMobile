@@ -4,7 +4,7 @@ const TOKEN_KEY = 'altiflow_jwt'
 
 // The base URL of the AltiFlow Next.js API
 // Set EXPO_PUBLIC_API_BASE in .env to your deployment URL
-export const API_BASE = (process.env.EXPO_PUBLIC_API_BASE || 'http://localhost:3000/api').replace(/\/+$/, '')
+export const API_BASE = (process.env.EXPO_PUBLIC_API_BASE || 'https://alti-flow.vercel.app/api').replace(/\/+$/, '')
 
 export async function getToken(): Promise<string | null> {
   try {
