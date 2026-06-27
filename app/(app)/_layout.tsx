@@ -1,16 +1,18 @@
 import { useEffect } from 'react'
 import { Tabs, router } from 'expo-router'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, Platform } from 'react-native'
 import { useAuth } from '../../context/AuthContext'
 import { isInternal, isClient } from '../../lib/auth'
+import { BlurView } from 'expo-blur'
 
 function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focused: boolean }) {
   return (
-    <View style={{ alignItems: 'center', paddingTop: 6 }}>
-      <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
+    <View style={{ alignItems: 'center', paddingTop: 6, opacity: focused ? 1 : 0.6 }}>
+      <Text style={{ fontSize: 20, marginBottom: 2 }}>{emoji}</Text>
       <Text style={{
-        fontSize: 10, marginTop: 2, fontWeight: focused ? '700' : '400',
-        color: focused ? '#818cf8' : '#71717a',
+        fontSize: 10,
+        fontWeight: focused ? '700' : '500',
+        color: focused ? '#3b82f6' : '#a1a1aa',
       }}>{label}</Text>
     </View>
   )
@@ -19,29 +21,33 @@ function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focu
 export default function AppLayout() {
   const { user, loading } = useAuth()
 
-  if (loading) return null; // Wait for auth check
+  if (loading) return null;
 
   if (!user) {
-    // If not logged in, RootLayout will handle redirect, but as a safety:
     return null;
   }
 
   const showAdmin = isInternal(user.role)
-  const showClient = isClient(user.role)
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#0f0f1a',
-          borderTopColor: '#2a2a3d',
+          position: 'absolute',
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : '#0f0f14',
+          borderTopColor: 'rgba(255,255,255,0.05)',
           borderTopWidth: 1,
           height: 64,
-          paddingBottom: 6,
+          elevation: 0,
         },
-        tabBarActiveTintColor: '#818cf8',
-        tabBarInactiveTintColor: '#71717a',
+        tabBarBackground: () => (
+          Platform.OS === 'ios' ? (
+            <BlurView tint="dark" intensity={80} style={{ flex: 1, backgroundColor: 'rgba(9, 9, 11, 0.7)' }} />
+          ) : null
+        ),
+        tabBarActiveTintColor: '#3b82f6',
+        tabBarInactiveTintColor: '#a1a1aa',
         tabBarShowLabel: false,
       }}
     >
@@ -60,7 +66,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="jobs/[projectId]"
         options={{
-          href: null, // hidden from tab bar, accessible via navigation
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -74,7 +80,7 @@ export default function AppLayout() {
         name="assigned"
         options={{
           tabBarIcon: ({ focused }) => <TabIcon emoji="📋" label="Assigned" focused={focused} />,
-          tabBarItemStyle: !showAdmin ? { display: 'none' } : {},
+          href: showAdmin ? undefined : null, // Hide from tab bar if not admin
         }}
       />
       <Tabs.Screen

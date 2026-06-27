@@ -7,7 +7,7 @@ import { useLocalSearchParams, router, useFocusEffect } from 'expo-router'
 import { useAuth } from '../../../context/AuthContext'
 import { api } from '../../../lib/api'
 import type { Job, JobComment } from '../../../lib/types'
-import { isClient, isClientAdmin } from '../../../lib/auth'
+import { isClient, isClientAdmin, isInternal } from '../../../lib/auth'
 
 const STAGE_COLORS: Record<string, { bg: string; text: string }> = {
   'Pending':        { bg: '#1e3a5f', text: '#60a5fa' },
@@ -54,8 +54,8 @@ function JobCard({ job, onRefresh, canDelete }: { job: Job; onRefresh: () => voi
 
   return (
     <View style={{
-      backgroundColor: '#13131f', borderRadius: 16, borderWidth: 1,
-      borderColor: '#2a2a3d', marginBottom: 12, overflow: 'hidden',
+      backgroundColor: '#0f0f14', borderRadius: 16, borderWidth: 1,
+      borderColor: '#222228', marginBottom: 12, overflow: 'hidden',
     }}>
       {/* Card header */}
       <TouchableOpacity
@@ -65,7 +65,7 @@ function JobCard({ job, onRefresh, canDelete }: { job: Job; onRefresh: () => voi
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View style={{ flex: 1, marginRight: 12 }}>
-            <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 14 }}>{job.title}</Text>
+            <Text style={{ color: '#fafafa', fontWeight: '700', fontSize: 14 }}>{job.title}</Text>
             <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
               {job.category && (
                 <View style={{ backgroundColor: '#312e81', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
@@ -102,7 +102,7 @@ function JobCard({ job, onRefresh, canDelete }: { job: Job; onRefresh: () => voi
 
       {/* Expanded details */}
       {expanded && (
-        <View style={{ borderTopWidth: 1, borderTopColor: '#2a2a3d', padding: 16 }}>
+        <View style={{ borderTopWidth: 1, borderTopColor: '#222228', padding: 16 }}>
           {/* Flight info */}
           {job.flight_count && (
             <Text style={{ color: '#a1a1aa', fontSize: 12, marginBottom: 8 }}>
@@ -211,7 +211,7 @@ export default function JobsScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [projectName, setProjectName] = useState('')
 
-  const canCreate = isClient(user?.role)
+  const canCreate = isInternal(user?.role)
   const canDelete = ['Super-Admin', 'Client-Admin'].includes(user?.role || '')
 
   async function load(isRefresh = false) {
@@ -254,21 +254,21 @@ export default function JobsScreen() {
   }, [jobs])
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0a0f' }}>
+    <View style={{ flex: 1, backgroundColor: '#09090b' }}>
       {/* Header */}
       <View style={{
         paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
-        backgroundColor: '#0f0f1a', borderBottomWidth: 1, borderBottomColor: '#2a2a3d',
+        backgroundColor: '#0f0f14', borderBottomWidth: 1, borderBottomColor: '#222228',
         flexDirection: 'row', alignItems: 'center', gap: 12,
       }}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={{ color: '#818cf8', fontSize: 20 }}>←</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#818cf8', fontSize: 12, fontWeight: '600', letterSpacing: 1 }}>
+          <Text style={{ color: '#3b82f6', fontSize: 12, fontWeight: '600', letterSpacing: 1 }}>
             JOB CARDS
           </Text>
-          <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: '800' }} numberOfLines={1}>
+          <Text style={{ color: '#fafafa', fontSize: 18, fontWeight: '800' }} numberOfLines={1}>
             {projectName || `Project ${projectId?.slice(0, 8)}`}
           </Text>
         </View>
@@ -276,7 +276,7 @@ export default function JobsScreen() {
           <TouchableOpacity
             onPress={() => router.push(`/(app)/jobs/create?projectId=${projectId}`)}
             style={{
-              backgroundColor: '#6366f1', borderRadius: 12,
+              backgroundColor: '#3b82f6', borderRadius: 12,
               paddingHorizontal: 14, paddingVertical: 8,
             }}
           >
@@ -287,7 +287,7 @@ export default function JobsScreen() {
 
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator color="#818cf8" size="large" />
+          <ActivityIndicator color="#3b82f6" size="large" />
         </View>
       ) : jobs.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -297,7 +297,7 @@ export default function JobsScreen() {
             <TouchableOpacity
               onPress={() => router.push(`/(app)/jobs/create?projectId=${projectId}`)}
               style={{
-                backgroundColor: '#6366f1', borderRadius: 12, marginTop: 20,
+                backgroundColor: '#3b82f6', borderRadius: 12, marginTop: 20,
                 paddingHorizontal: 24, paddingVertical: 12,
               }}
             >
@@ -309,7 +309,7 @@ export default function JobsScreen() {
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ padding: 16 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#818cf8" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#3b82f6" />}
         >
           {groupedByDay.map(([date, dayJobs]) => (
             <View key={date}>
@@ -317,15 +317,15 @@ export default function JobsScreen() {
               <View style={{
                 flexDirection: 'row', alignItems: 'center', marginBottom: 10, marginTop: 4,
               }}>
-                <View style={{ flex: 1, height: 1, backgroundColor: '#2a2a3d' }} />
+                <View style={{ flex: 1, height: 1, backgroundColor: '#222228' }} />
                 <View style={{
-                  backgroundColor: '#1a1a2e', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginHorizontal: 10,
+                  backgroundColor: '#1e1e24', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginHorizontal: 10,
                 }}>
-                  <Text style={{ color: '#818cf8', fontSize: 11, fontWeight: '600' }}>
+                  <Text style={{ color: '#3b82f6', fontSize: 11, fontWeight: '600' }}>
                     📅 {date} ({dayJobs.length})
                   </Text>
                 </View>
-                <View style={{ flex: 1, height: 1, backgroundColor: '#2a2a3d' }} />
+                <View style={{ flex: 1, height: 1, backgroundColor: '#222228' }} />
               </View>
               {dayJobs.map((job) => (
                 <JobCard key={job.id} job={job} onRefresh={() => load(true)} canDelete={canDelete} />

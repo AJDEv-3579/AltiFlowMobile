@@ -73,17 +73,17 @@ export default function CreateJobScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0a0f' }}>
+    <View style={{ flex: 1, backgroundColor: '#09090b' }}>
       {/* Header */}
       <View style={{
         paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
-        backgroundColor: '#0f0f1a', borderBottomWidth: 1, borderBottomColor: '#2a2a3d',
+        backgroundColor: '#0f0f14', borderBottomWidth: 1, borderBottomColor: '#222228',
         flexDirection: 'row', alignItems: 'center', gap: 12,
       }}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: '#818cf8', fontSize: 20 }}>✕</Text>
+          <Text style={{ color: '#3b82f6', fontSize: 20 }}>✕</Text>
         </TouchableOpacity>
-        <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '800' }}>New Job Card</Text>
+        <Text style={{ color: '#fafafa', fontSize: 20, fontWeight: '800' }}>New Job Card</Text>
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -128,12 +128,12 @@ export default function CreateJobScreen() {
                   onPress={() => setCategory(c as any)}
                   style={{
                     flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: 'center',
-                    backgroundColor: category === c ? '#4338ca' : '#13131f',
+                    backgroundColor: category === c ? '#1e1e24' : '#0f0f14',
                     borderWidth: 1,
-                    borderColor: category === c ? '#6366f1' : '#2a2a3d',
+                    borderColor: category === c ? '#3b82f6' : '#222228',
                   }}
                 >
-                  <Text style={{ color: category === c ? '#c7d2fe' : '#71717a', fontWeight: '600', fontSize: 13 }}>
+                  <Text style={{ color: category === c ? '#3b82f6' : '#71717a', fontWeight: '600', fontSize: 13 }}>
                     {c}
                   </Text>
                 </TouchableOpacity>
@@ -146,8 +146,8 @@ export default function CreateJobScreen() {
               <TouchableOpacity
                 onPress={() => setFlightCount(Math.max(1, flightCount - 1))}
                 style={{
-                  width: 44, height: 44, borderRadius: 12, backgroundColor: '#1a1a2e',
-                  borderWidth: 1, borderColor: '#2a2a3d', alignItems: 'center', justifyContent: 'center',
+                  width: 44, height: 44, borderRadius: 12, backgroundColor: '#1e1e24',
+                  borderWidth: 1, borderColor: '#222228', alignItems: 'center', justifyContent: 'center',
                 }}
               >
                 <Text style={{ color: '#ffffff', fontSize: 20 }}>−</Text>
@@ -158,8 +158,8 @@ export default function CreateJobScreen() {
               <TouchableOpacity
                 onPress={() => setFlightCount(flightCount + 1)}
                 style={{
-                  width: 44, height: 44, borderRadius: 12, backgroundColor: '#1a1a2e',
-                  borderWidth: 1, borderColor: '#2a2a3d', alignItems: 'center', justifyContent: 'center',
+                  width: 44, height: 44, borderRadius: 12, backgroundColor: '#1e1e24',
+                  borderWidth: 1, borderColor: '#222228', alignItems: 'center', justifyContent: 'center',
                 }}
               >
                 <Text style={{ color: '#ffffff', fontSize: 20 }}>+</Text>
@@ -183,15 +183,15 @@ export default function CreateJobScreen() {
               onPress={() => setHasLogs(!hasLogs)}
               style={{
                 flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-                backgroundColor: hasLogs ? '#14532d20' : '#13131f',
-                borderWidth: 1, borderColor: hasLogs ? '#34d39940' : '#2a2a3d',
+                backgroundColor: hasLogs ? '#10b98120' : '#0f0f14',
+                borderWidth: 1, borderColor: hasLogs ? '#10b98140' : '#222228',
                 borderRadius: 12, padding: 14,
               }}
             >
               <Text style={{ color: '#a1a1aa', fontSize: 14 }}>Flight logs available</Text>
               <View style={{
                 width: 44, height: 24, borderRadius: 12,
-                backgroundColor: hasLogs ? '#34d399' : '#2a2a3d',
+                backgroundColor: hasLogs ? '#10b981' : '#222228',
                 padding: 2,
               }}>
                 <View style={{
@@ -219,7 +219,7 @@ export default function CreateJobScreen() {
             onPress={handleCreate}
             disabled={saving}
             style={{
-              backgroundColor: saving ? '#4338ca80' : '#6366f1',
+              backgroundColor: saving ? '#3b82f680' : '#3b82f6',
               borderRadius: 14, paddingVertical: 16, alignItems: 'center',
               flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 8,
             }}
