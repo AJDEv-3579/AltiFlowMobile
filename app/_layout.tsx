@@ -12,8 +12,29 @@ import {
   removeNotificationSubscription,
 } from '../lib/notifications'
 import type * as Notifications from 'expo-notifications'
+import { PermissionsAndroid, Platform } from 'react-native'
 
 SplashScreen.preventAutoHideAsync()
+
+async function requestRuntimePermissions() {
+  if (Platform.OS !== 'android') return
+  try {
+    const permissions = [
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    ]
+    // Add POST_NOTIFICATIONS for Android 13+ (API 33+)
+    if (Platform.Version >= 33 && (PermissionsAndroid.PERMISSIONS as any).POST_NOTIFICATIONS) {
+      permissions.push((PermissionsAndroid.PERMISSIONS as any).POST_NOTIFICATIONS)
+    }
+    const granted = await PermissionsAndroid.requestMultiple(permissions)
+    console.log('[Permissions] Status:', granted)
+  } catch (err) {
+    console.warn('[Permissions] Request failed:', err)
+  }
+}
 
 function RootLayoutNav() {
   const { user, loading } = useAuth()
@@ -24,6 +45,10 @@ function RootLayoutNav() {
       SplashScreen.hideAsync()
     }
   }, [loading])
+
+  useEffect(() => {
+    requestRuntimePermissions()
+  }, [])
 
   useEffect(() => {
     if (!user) return
