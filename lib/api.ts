@@ -37,11 +37,16 @@ export async function api<T = any>(
   }
 
   const url = `${API_BASE}${path}`
-  const res = await fetch(url, {
-    cache: 'no-store',
-    ...opts,
-    headers,
-  })
+  let res
+  try {
+    res = await fetch(url, {
+      cache: 'no-store',
+      ...opts,
+      headers,
+    })
+  } catch (e: any) {
+    throw new Error('No network access: Please verify your internet connection and server configuration.')
+  }
 
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {

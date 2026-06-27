@@ -53,8 +53,6 @@ export default function LoginScreen() {
           {/* Branding */}
           <View style={{ alignItems: 'center', marginBottom: 48 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              {/* Plane icon as text */}
-              <Text style={{ fontSize: 32, marginRight: 6 }}>✈</Text>
               <Text style={{
                 fontSize: 36, fontWeight: '800', letterSpacing: -1,
                 color: '#ffffff',
