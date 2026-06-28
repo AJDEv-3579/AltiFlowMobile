@@ -7,10 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { logout, changePassword } from '../../lib/auth'
 import { removePushTokenFromServer, registerForPushNotifications } from '../../lib/notifications'
 import { colors, ROLE_COLORS } from '../../lib/design'
-import {
-  User, Shield, Building2, Smartphone, Bell, Globe,
-  Lock, LogOut, ChevronRight, Key,
-} from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -26,8 +23,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Row({
-  Icon, label, value, onPress, danger,
-}: { Icon: any; label: string; value?: string; onPress?: () => void; danger?: boolean }) {
+  icon, label, value, onPress, danger,
+}: { icon: React.ComponentProps<typeof Ionicons>['name']; label: string; value?: string; onPress?: () => void; danger?: boolean }) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -37,13 +34,13 @@ function Row({
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <View style={{ backgroundColor: danger ? colors.dangerMuted : colors.borderMuted, borderRadius: 8, padding: 8 }}>
-          <Icon size={16} color={danger ? colors.danger : colors.textMuted} />
+          <Ionicons name={icon as any} size={16} color={danger ? colors.danger : colors.textMuted} />
         </View>
         <Text style={{ color: danger ? colors.dangerText : colors.textSecondary, fontSize: 15 }}>{label}</Text>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         {value && <Text style={{ color: colors.textFaint, fontSize: 13 }}>{value}</Text>}
-        {onPress && <ChevronRight size={16} color={danger ? colors.danger : colors.textDim} />}
+        {onPress && <Ionicons name="chevron-forward" size={16} color={danger ? colors.danger : colors.textDim} />}
       </View>
     </TouchableOpacity>
   )
@@ -133,7 +130,7 @@ export default function SettingsScreen() {
         <View style={{ marginHorizontal: 16, marginBottom: 24 }}>
           <View style={{ backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.border, padding: 24, alignItems: 'center' }}>
             <View style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: rc.bg, borderWidth: 2, borderColor: rc.border, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-              <User size={34} color={rc.color} />
+            <Ionicons name="person-outline" size={34} color={rc.color} />
             </View>
             <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '800' }}>{user?.username}</Text>
             <View style={{ marginTop: 8, backgroundColor: rc.bg, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 5, borderWidth: 1, borderColor: rc.border }}>
@@ -146,16 +143,16 @@ export default function SettingsScreen() {
         </View>
 
         <Section title="Account">
-          <Row Icon={User} label="Username" value={user?.username} />
-          <Row Icon={Shield} label="Role" value={user?.role} />
-          {user?.client?.name && <Row Icon={Building2} label="Organization" value={user.client.name} />}
-          <Row Icon={Key} label="Change Password" onPress={() => setShowChangePass(true)} />
+          <Row icon="person-outline" label="Username" value={user?.username} />
+          <Row icon="shield-outline" label="Role" value={user?.role} />
+          {user?.client?.name && <Row icon="business-outline" label="Organization" value={user.client.name} />}
+          <Row icon="key-outline" label="Change Password" onPress={() => setShowChangePass(true)} />
         </Section>
 
         <Section title="App Info">
-          <Row Icon={Smartphone} label="App Version" value="1.0.0" />
-          <Row Icon={Bell} label="Push Notifications" value="Enabled" />
-          <Row Icon={Globe} label="API Connection" value="Active" />
+          <Row icon="phone-portrait-outline" label="App Version" value="1.0.0" />
+          <Row icon="notifications-outline" label="Push Notifications" value="Enabled" />
+          <Row icon="globe-outline" label="API Connection" value="Active" />
         </Section>
 
         <View style={{ marginHorizontal: 16, marginBottom: 40 }}>
@@ -168,7 +165,7 @@ export default function SettingsScreen() {
             {signingOut ? (
               <ActivityIndicator color={colors.danger} size="small" />
             ) : (
-              <LogOut size={20} color={colors.danger} />
+              <Ionicons name="log-out-outline" size={20} color={colors.danger} />
             )}
             <Text style={{ color: colors.dangerText, fontWeight: '700', fontSize: 16 }}>
               {signingOut ? 'Signing out…' : 'Sign Out'}

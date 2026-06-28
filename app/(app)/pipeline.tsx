@@ -6,7 +6,7 @@ import { useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api'
 import { colors, STATUS_COLORS } from '../../lib/design'
-import { Briefcase, ChevronRight, User, Calendar, RotateCcw } from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 // Field project type (from /projects endpoint)
 interface FieldProject {
@@ -54,7 +54,7 @@ function PipelineCard({ project }: { project: FieldProject }) {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         {captureDate && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Calendar size={12} color={colors.textFaint} />
+            <Ionicons name="calendar-outline" size={12} color={colors.textFaint} />
             <Text style={{ color: colors.textFaint, fontSize: 12 }}>{captureDate}</Text>
           </View>
         )}
@@ -66,7 +66,7 @@ function PipelineCard({ project }: { project: FieldProject }) {
         )}
         {project.assignee_name && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <User size={12} color={colors.textFaint} />
+            <Ionicons name="person-outline" size={12} color={colors.textFaint} />
             <Text style={{ color: colors.textFaint, fontSize: 12 }}>{project.assignee_name}</Text>
           </View>
         )}
@@ -162,7 +162,7 @@ export default function PipelineScreen() {
         >
           {filtered.length === 0 ? (
             <View style={{ alignItems: 'center', marginTop: 80 }}>
-              <Briefcase size={52} color={colors.border} />
+              <Ionicons name="briefcase-outline" size={52} color={colors.border} />
               <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>No projects in this stage</Text>
             </View>
           ) : (

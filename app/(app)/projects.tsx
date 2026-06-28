@@ -9,7 +9,7 @@ import { api } from '../../lib/api'
 import { isInternal } from '../../lib/auth'
 import { colors, STATUS_COLORS } from '../../lib/design'
 import type { ClientProject } from '../../lib/types'
-import { Search, ChevronRight, FolderOpen, Calendar, User } from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 function StatusBadge({ status }: { status: string }) {
   const sc = STATUS_COLORS[status] || { bg: colors.border, text: colors.textMuted, border: colors.border }
@@ -51,19 +51,19 @@ function ProjectCard({ project, onPress }: { project: ClientProject; onPress: ()
             )}
           </View>
         </View>
-        <ChevronRight size={18} color={colors.textDim} />
+        <Ionicons name="chevron-forward" size={18} color={colors.textDim} />
       </View>
 
       <View style={{ flexDirection: 'row', gap: 14, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.borderMuted }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Calendar size={11} color={colors.textFaint} />
+          <Ionicons name="calendar-outline" size={11} color={colors.textFaint} />
           <Text style={{ color: colors.textFaint, fontSize: 11 }}>{startDate}</Text>
         </View>
         <Text style={{ color: colors.textDim, fontSize: 11 }}>→</Text>
         <Text style={{ color: colors.textFaint, fontSize: 11 }}>{endDate}</Text>
         {project.head && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
-            <User size={11} color={colors.textFaint} />
+            <Ionicons name="person-outline" size={11} color={colors.textFaint} />
             <Text style={{ color: colors.textFaint, fontSize: 11 }} numberOfLines={1}>{project.head}</Text>
           </View>
         )}
@@ -117,7 +117,7 @@ export default function ProjectsScreen() {
       {/* Search */}
       <View style={{ paddingHorizontal: 16, paddingVertical: 10, backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: colors.borderMuted }}>
         <View style={{ backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.border, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
-          <Search size={16} color={colors.textFaint} />
+          <Ionicons name="search-outline" size={16} color={colors.textFaint} />
           <TextInput
             value={search}
             onChangeText={setSearch}
@@ -140,7 +140,7 @@ export default function ProjectsScreen() {
         >
           {filtered.length === 0 ? (
             <View style={{ alignItems: 'center', marginTop: 80 }}>
-              <FolderOpen size={52} color={colors.border} />
+              <Ionicons name="folder-open-outline" size={52} color={colors.border} />
               <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>
                 {search ? 'No projects match your search' : 'No projects found'}
               </Text>

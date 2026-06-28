@@ -9,11 +9,7 @@ import { api } from '../../../lib/api'
 import type { Job } from '../../../lib/types'
 import { isClient, isInternal, isClientAdmin } from '../../../lib/auth'
 import { colors, STATUS_COLORS } from '../../../lib/design'
-import {
-  ArrowLeft, Plus, ChevronDown, ChevronUp,
-  Calendar, Plane, Camera, User, ClipboardCheck,
-  Activity, MessageSquare, Layers,
-} from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 // ─── Status badge ────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {

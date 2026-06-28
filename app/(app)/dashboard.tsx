@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
-  View, Text, ScrollView, RefreshControl, ActivityIndicator,
-  Animated, Easing,
+  View, Text, ScrollView, RefreshControl, ActivityIndicator, Animated, Easing,
 } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
@@ -9,12 +8,8 @@ import { api } from '../../lib/api'
 import { isInternal } from '../../lib/auth'
 import { colors, ROLE_COLORS, STATUS_COLORS } from '../../lib/design'
 import type { DashboardStats } from '../../lib/types'
-import {
-  BarChart2, Users, FolderOpen, Camera,
-  ShieldAlert, TrendingUp, Clock, CheckCircle2,
-} from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
-/* ── Skeleton loader ── */
 function Skeleton({ width, height = 14, radius = 6 }: { width: number | string; height?: number; radius?: number }) {
   const anim = new Animated.Value(0.4)
   useEffect(() => {
@@ -26,16 +21,14 @@ function Skeleton({ width, height = 14, radius = 6 }: { width: number | string; 
     ).start()
   }, [])
   return (
-    <Animated.View
-      style={{ width: width as any, height, borderRadius: radius, backgroundColor: colors.border, opacity: anim, marginBottom: 6 }}
-    />
+    <Animated.View style={{ width: width as any, height, borderRadius: radius, backgroundColor: colors.border, opacity: anim, marginBottom: 6 }} />
   )
 }
 
-/* ── Stat card ── */
-function StatCard({
-  Icon, label, value, color, delay = 0,
-}: { Icon: any; label: string; value: number; color: string; delay?: number }) {
+function StatCard({ iconName, label, value, color, delay = 0 }: {
+  iconName: React.ComponentProps<typeof Ionicons>['name']
+  label: string; value: number; color: string; delay?: number
+}) {
   const fade = new Animated.Value(0)
   const slide = new Animated.Value(16)
   useEffect(() => {
@@ -47,14 +40,11 @@ function StatCard({
   return (
     <Animated.View style={{
       opacity: fade, transform: [{ translateY: slide }],
-      backgroundColor: colors.card, borderRadius: 16,
-      borderWidth: 1, borderColor: colors.border, padding: 16,
-      flex: 1, marginBottom: 10,
+      backgroundColor: colors.card, borderRadius: 16, borderWidth: 1,
+      borderColor: colors.border, padding: 16, flex: 1, marginBottom: 10,
     }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <View style={{ backgroundColor: color + '20', borderRadius: 10, padding: 8 }}>
-          <Icon size={18} color={color} strokeWidth={2} />
-        </View>
+      <View style={{ backgroundColor: color + '20', borderRadius: 10, padding: 8, alignSelf: 'flex-start', marginBottom: 12 }}>
+        <Ionicons name={iconName} size={18} color={color} />
       </View>
       <Text style={{ color, fontSize: 30, fontWeight: '800', letterSpacing: -1 }}>{value}</Text>
       <Text style={{ color: colors.textFaint, fontSize: 12, marginTop: 3, fontWeight: '500' }}>{label}</Text>
@@ -62,7 +52,6 @@ function StatCard({
   )
 }
 
-/* ── SLA progress bar ── */
 function SlaBar({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
   const pct = total > 0 ? (value / total) * 100 : 0
   const width = new Animated.Value(0)
@@ -78,20 +67,16 @@ function SlaBar({ label, value, total, color }: { label: string; value: number; 
         </Text>
       </View>
       <View style={{ height: 7, backgroundColor: colors.borderMuted, borderRadius: 4 }}>
-        <Animated.View
-          style={{
-            height: 7,
-            width: width.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
-            backgroundColor: color,
-            borderRadius: 4,
-          }}
-        />
+        <Animated.View style={{
+          height: 7,
+          width: width.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
+          backgroundColor: color, borderRadius: 4,
+        }} />
       </View>
     </View>
   )
 }
 
-/* ── Client dashboard (simple project summary) ── */
 function ClientDashboard({ user }: { user: any }) {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -106,36 +91,25 @@ function ClientDashboard({ user }: { user: any }) {
   const active = projects.filter((p) => !['Delivery', 'Done'].includes(p.status || '')).length
   const delivered = projects.filter((p) => p.status === 'Delivery' || p.status === 'Done').length
 
+  const rc = ROLE_COLORS[user?.role || ''] || { color: colors.textMuted, bg: colors.border, border: colors.border }
+
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
-      {/* Welcome */}
       <View style={{ backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.border, padding: 20, marginBottom: 16 }}>
         <Text style={{ color: colors.textMuted, fontSize: 13 }}>Welcome back,</Text>
-        <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '800', marginTop: 2 }}>{user.username}</Text>
-        {(() => {
-          const rc = ROLE_COLORS[user.role] || { color: colors.textMuted, bg: colors.border, border: colors.border }
-          return (
-            <View style={{ marginTop: 10, alignSelf: 'flex-start', backgroundColor: rc.bg, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, borderWidth: 1, borderColor: rc.border }}>
-              <Text style={{ color: rc.color, fontWeight: '700', fontSize: 12 }}>{user.role}</Text>
-            </View>
-          )
-        })()}
+        <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '800', marginTop: 2 }}>{user?.username}</Text>
+        <View style={{ marginTop: 10, alignSelf: 'flex-start', backgroundColor: rc.bg, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, borderWidth: 1, borderColor: rc.border }}>
+          <Text style={{ color: rc.color, fontWeight: '700', fontSize: 12 }}>{user?.role}</Text>
+        </View>
       </View>
 
-      {/* Project summary */}
       {loading ? (
         <><Skeleton width="100%" height={80} radius={16} /><Skeleton width="100%" height={80} radius={16} /></>
       ) : (
         <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
-          <View style={{ flex: 1 }}>
-            <StatCard Icon={FolderOpen} label="Total Projects" value={projects.length} color={colors.primary} delay={0} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <StatCard Icon={TrendingUp} label="Active" value={active} color={colors.warning} delay={100} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <StatCard Icon={CheckCircle2} label="Delivered" value={delivered} color={colors.success} delay={200} />
-          </View>
+          <View style={{ flex: 1 }}><StatCard iconName="folder-open-outline" label="Total Projects" value={projects.length} color={colors.primary} delay={0} /></View>
+          <View style={{ flex: 1 }}><StatCard iconName="trending-up-outline" label="Active" value={active} color={colors.warning} delay={100} /></View>
+          <View style={{ flex: 1 }}><StatCard iconName="checkmark-circle-outline" label="Delivered" value={delivered} color={colors.success} delay={200} /></View>
         </View>
       )}
 
@@ -159,7 +133,6 @@ function ClientDashboard({ user }: { user: any }) {
   )
 }
 
-/* ── Admin dashboard (full analytics) ── */
 function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -202,7 +175,7 @@ function AdminDashboard() {
   if (error) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
-        <ShieldAlert size={40} color={colors.danger} />
+        <Ionicons name="shield-outline" size={40} color={colors.danger} />
         <Text style={{ color: colors.dangerText, marginTop: 12, textAlign: 'center' }}>{error}</Text>
       </View>
     )
@@ -214,29 +187,19 @@ function AdminDashboard() {
       contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.primary} />}
     >
-      {/* Stats grid */}
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        <View style={{ flex: 1 }}>
-          <StatCard Icon={Camera} label="Field Jobs" value={stats?.totals?.field_jobs ?? 0} color={colors.primary} delay={0} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <StatCard Icon={FolderOpen} label="Projects" value={stats?.totals?.projects ?? 0} color={colors.success} delay={80} />
-        </View>
+        <View style={{ flex: 1 }}><StatCard iconName="camera-outline" label="Field Jobs" value={stats?.totals?.field_jobs ?? 0} color={colors.primary} delay={0} /></View>
+        <View style={{ flex: 1 }}><StatCard iconName="folder-open-outline" label="Projects" value={stats?.totals?.projects ?? 0} color={colors.success} delay={80} /></View>
       </View>
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        <View style={{ flex: 1 }}>
-          <StatCard Icon={BarChart2} label="Clients" value={stats?.totals?.clients ?? 0} color={colors.warning} delay={160} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <StatCard Icon={Users} label="Users" value={stats?.totals?.users ?? 0} color={colors.purple} delay={240} />
-        </View>
+        <View style={{ flex: 1 }}><StatCard iconName="bar-chart-outline" label="Clients" value={stats?.totals?.clients ?? 0} color={colors.warning} delay={160} /></View>
+        <View style={{ flex: 1 }}><StatCard iconName="people-outline" label="Users" value={stats?.totals?.users ?? 0} color={colors.purple} delay={240} /></View>
       </View>
 
-      {/* SLA Health */}
       {stats?.bySla && (
         <View style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 20, marginBottom: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <Clock size={16} color={colors.primary} />
+            <Ionicons name="time-outline" size={16} color={colors.primary} />
             <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 15 }}>SLA Health</Text>
           </View>
           <SlaBar label="On Track" value={stats.bySla.ok} total={slaTotal} color={colors.success} />
@@ -245,11 +208,10 @@ function AdminDashboard() {
         </View>
       )}
 
-      {/* Status Breakdown */}
       {stats?.byStatus && Object.keys(stats.byStatus).length > 0 && (
         <View style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 20, marginBottom: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <FolderOpen size={16} color={colors.warning} />
+            <Ionicons name="folder-open-outline" size={16} color={colors.warning} />
             <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 15 }}>Project Status</Text>
           </View>
           {Object.entries(stats.byStatus).map(([status, count]) => {
@@ -266,11 +228,10 @@ function AdminDashboard() {
         </View>
       )}
 
-      {/* Monthly bar chart */}
       {stats?.fieldJobsByMonth && stats.fieldJobsByMonth.length > 0 && (
         <View style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 20, marginBottom: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <TrendingUp size={16} color={colors.success} />
+            <Ionicons name="trending-up-outline" size={16} color={colors.success} />
             <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 15 }}>Monthly Field Jobs</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -294,22 +255,17 @@ function AdminDashboard() {
   )
 }
 
-/* ── Main screen ── */
 export default function DashboardScreen() {
   const { user } = useAuth()
   const isAdmin = isInternal(user?.role)
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      {/* Header */}
       <View style={{ paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20, backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border }}>
-        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>
-          AltiFlow
-        </Text>
+        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>AltiFlow</Text>
         <Text style={{ color: colors.textPrimary, fontSize: 26, fontWeight: '800', marginTop: 2 }}>Dashboard</Text>
         <Text style={{ color: colors.textFaint, fontSize: 13, marginTop: 1 }}>{user?.username} · {user?.role}</Text>
       </View>
-
       {isAdmin ? <AdminDashboard /> : <ClientDashboard user={user} />}
     </View>
   )

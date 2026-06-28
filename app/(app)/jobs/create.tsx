@@ -6,7 +6,7 @@ import {
 import { router, useLocalSearchParams } from 'expo-router'
 import { api } from '../../../lib/api'
 import { colors } from '../../../lib/design'
-import { X, Send, Plane, Camera, CalendarDays, Layers, FileText, ChevronLeft } from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 const CATEGORIES = ['Stand Count', 'Uniformity'] as const
 type Category = typeof CATEGORIES[number]
@@ -89,7 +89,7 @@ export default function CreateJobScreen() {
         flexDirection: 'row', alignItems: 'center', gap: 12,
       }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
-          <X size={22} color={colors.textMuted} />
+          <Ionicons name="close" size={22} color={colors.textMuted} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>New Job Card</Text>
@@ -227,7 +227,7 @@ export default function CreateJobScreen() {
               flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 8,
             }}
           >
-            {saving ? <ActivityIndicator color="#fff" size="small" /> : <Send size={18} color="#fff" />}
+            {saving ? <ActivityIndicator color="#fff" size="small" /> : <Ionicons name="send-outline" size={18} color="#fff" />}
             <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>
               {saving ? 'Creating…' : 'Create Job Card'}
             </Text>

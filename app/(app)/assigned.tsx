@@ -9,7 +9,7 @@ import { api } from '../../lib/api'
 import { isInternal, isClientAdmin } from '../../lib/auth'
 import { colors, STATUS_COLORS } from '../../lib/design'
 import type { Job } from '../../lib/types'
-import { ClipboardList, ChevronDown, ChevronUp, User, Calendar, Layers } from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 const STAGES = ['Pending', 'In Progress', 'Done', 'Blocked']
 
@@ -81,7 +81,7 @@ function AssignedJobCard({ job, canUpdate }: { job: Job; canUpdate: boolean }) {
               {job.client_name ? ` · ${job.client_name}` : ''}
             </Text>
           </View>
-          {expanded ? <ChevronUp size={18} color={colors.textDim} /> : <ChevronDown size={18} color={colors.textDim} />}
+          {expanded ? <Ionicons name="chevron-up" size={18} color={colors.textDim} /> : <Ionicons name="chevron-down" size={18} color={colors.textDim} />}
         </View>
 
         {/* Status chips */}
@@ -113,18 +113,18 @@ function AssignedJobCard({ job, canUpdate }: { job: Job; canUpdate: boolean }) {
       {expanded && (
         <View style={{ borderTopWidth: 1, borderTopColor: colors.border, padding: 16 }}>
           <View style={{ flexDirection: 'row', gap: 14, marginBottom: 14 }}>
-            {job.capture_date && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Calendar size={12} color={colors.textFaint} />
-                <Text style={{ color: colors.textFaint, fontSize: 12 }}>
-                  {new Date(job.capture_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                </Text>
-              </View>
-            )}
-            {job.drone_name && (
-              <Text style={{ color: colors.textFaint, fontSize: 12 }}>✈ {job.drone_name}</Text>
-            )}
-          </View>
+          {job.capture_date && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Ionicons name="calendar-outline" size={12} color={colors.textFaint} />
+              <Text style={{ color: colors.textFaint, fontSize: 12 }}>
+                {new Date(job.capture_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+              </Text>
+            </View>
+          )}
+          {job.drone_name && (
+            <Text style={{ color: colors.textFaint, fontSize: 12 }}>✈ {job.drone_name}</Text>
+          )}
+        </View>
 
           {canUpdate && hasSc && (
             <StagePicker label="Stand Count" current={job.sc_status!} onSelect={(s) => updateStatus('sc_status', s)} disabled={updating} />
@@ -196,7 +196,7 @@ export default function AssignedScreen() {
         >
           {jobs.length === 0 ? (
             <View style={{ alignItems: 'center', marginTop: 80 }}>
-              <ClipboardList size={52} color={colors.border} />
+              <Ionicons name="clipboard-outline" size={52} color={colors.border} />
               <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>No jobs assigned to you</Text>
             </View>
           ) : (

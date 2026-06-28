@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api'
 import { isInternal } from '../../lib/auth'
 import { colors, STATUS_COLORS } from '../../lib/design'
-import { TicketCheck, Plus, ChevronDown, ChevronUp, Send, X } from 'lucide-react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 interface SupportTicket {
   id: string
@@ -42,7 +42,7 @@ function TicketCard({ ticket }: { ticket: SupportTicket }) {
           <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 14, flex: 1, marginRight: 10 }} numberOfLines={2}>
             {ticket.subject}
           </Text>
-          {expanded ? <ChevronUp size={18} color={colors.textDim} /> : <ChevronDown size={18} color={colors.textDim} />}
+          {expanded ? <Ionicons name="chevron-up" size={18} color={colors.textDim} /> : <Ionicons name="chevron-down" size={18} color={colors.textDim} />}
         </View>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <View style={{ backgroundColor: sc.bg, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: sc.border }}>
@@ -108,7 +108,7 @@ function NewTicketModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <Text style={{ color: colors.textPrimary, fontWeight: '800', fontSize: 20 }}>New Support Ticket</Text>
             <TouchableOpacity onPress={onClose}>
-              <X size={22} color={colors.textMuted} />
+              <Ionicons name="close" size={22} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -132,7 +132,7 @@ function NewTicketModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
           <TextInput value={description} onChangeText={setDescription} placeholder="Full details of the issue…" placeholderTextColor={colors.textDim} multiline numberOfLines={4} style={{ ...inputStyle, minHeight: 100, textAlignVertical: 'top', marginBottom: 20 }} />
 
           <TouchableOpacity onPress={handleSubmit} disabled={saving} activeOpacity={0.8} style={{ backgroundColor: saving ? colors.primary + '80' : colors.primary, borderRadius: 14, paddingVertical: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-            {saving ? <ActivityIndicator color="#fff" size="small" /> : <Send size={18} color="#fff" />}
+            {saving ? <ActivityIndicator color="#fff" size="small" /> : <Ionicons name="send-outline" size={18} color="#fff" />}
             <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{saving ? 'Submitting…' : 'Submit Ticket'}</Text>
           </TouchableOpacity>
         </View>
@@ -177,7 +177,7 @@ export default function SupportScreen() {
           onPress={() => setShowNew(true)}
           style={{ backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 9, flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}
         >
-          <Plus size={16} color="#fff" />
+          <Ionicons name="add" size={18} color="#fff" />
           <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>New</Text>
         </TouchableOpacity>
       </View>
@@ -194,7 +194,7 @@ export default function SupportScreen() {
         >
           {tickets.length === 0 ? (
             <View style={{ alignItems: 'center', marginTop: 80 }}>
-              <TicketCheck size={52} color={colors.border} />
+              <Ionicons name="ticket-outline" size={52} color={colors.border} />
               <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>No support tickets yet</Text>
               <TouchableOpacity onPress={() => setShowNew(true)} style={{ marginTop: 20, backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 }}>
                 <Text style={{ color: '#fff', fontWeight: '700' }}>Create First Ticket</Text>
