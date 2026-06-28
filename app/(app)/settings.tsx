@@ -4,7 +4,7 @@ import {
 } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
-import { logout, changePassword } from '../../lib/auth'
+import { logout, changePassword, changeUsername } from '../../lib/auth'
 import { removePushTokenFromServer, registerForPushNotifications } from '../../lib/notifications'
 import { colors, ROLE_COLORS } from '../../lib/design'
 import { Ionicons } from '@expo/vector-icons'
@@ -127,10 +127,76 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+function ChangeUsernameModal({ onClose, onSave }: { onClose: () => void; onSave: () => void }) {
+  const { user } = useAuth()
+  const [username, setUsername] = useState(user?.username || '')
+  const [saving, setSaving] = useState(false)
+
+  async function handleSave() {
+    if (!username.trim()) return Alert.alert('Error', 'Please enter a username.')
+    const trimmed = username.trim()
+    if (trimmed.length < 3) return Alert.alert('Too Short', 'Username must be at least 3 characters.')
+    if (trimmed.includes('@')) return Alert.alert('Invalid', 'Username cannot be an email address.')
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      return Alert.alert('Invalid', 'Username can only contain letters, numbers, and underscores.')
+    }
+
+    setSaving(true)
+    try {
+      await changeUsername(trimmed)
+      Alert.alert('Success', 'Username updated successfully!', [{ text: 'OK', onPress: () => { onSave(); onClose(); } }])
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to update username. It might be already taken.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const inputStyle = {
+    backgroundColor: colors.borderMuted,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: colors.textPrimary,
+    fontSize: 14,
+    marginBottom: 12,
+  }
+
+  return (
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', zIndex: 100, padding: 24 }}>
+      <View style={{ backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.border, padding: 24, width: '100%' }}>
+        <Text style={{ color: colors.textPrimary, fontWeight: '800', fontSize: 20, marginBottom: 20 }}>Edit Username</Text>
+        <Text style={{ color: colors.textMuted, fontSize: 11, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase' }}>Username</Text>
+        <TextInput
+          value={username}
+          onChangeText={setUsername}
+          placeholder="Username"
+          placeholderTextColor={colors.textDim}
+          style={inputStyle}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+          <TouchableOpacity onPress={onClose} style={{ flex: 1, backgroundColor: colors.borderMuted, borderRadius: 12, paddingVertical: 14, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}>
+            <Text style={{ color: colors.textMuted, fontWeight: '600' }}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSave} disabled={saving || username.trim() === user?.username} style={{ flex: 2, backgroundColor: saving ? colors.primary + '80' : colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
+            {saving && <ActivityIndicator color="#fff" size="small" />}
+            <Text style={{ color: '#fff', fontWeight: '700' }}>{saving ? 'Saving…' : 'Save'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  )
+}
+
 export default function SettingsScreen() {
-  const { user, logout: contextLogout } = useAuth()
+  const { user, logout: contextLogout, refresh: contextRefresh } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
   const [showChangePass, setShowChangePass] = useState(false)
+  const [showChangeUsername, setShowChangeUsername] = useState(false)
 
   const rc = ROLE_COLORS[user?.role || ''] || { color: colors.textMuted, bg: colors.border, border: colors.border }
 
@@ -177,7 +243,7 @@ export default function SettingsScreen() {
         </View>
 
         <Section title="Account">
-          <Row icon="person-outline" label="Username" value={user?.username} />
+          <Row icon="person-outline" label="Username" value={user?.username} onPress={() => setShowChangeUsername(true)} />
           <Row icon="shield-outline" label="Role" value={user?.role} />
           {user?.client?.name && <Row icon="business-outline" label="Organization" value={user.client.name} />}
           <Row icon="key-outline" label="Change Password" onPress={() => setShowChangePass(true)} />
@@ -209,6 +275,7 @@ export default function SettingsScreen() {
       </ScrollView>
 
       {showChangePass && <ChangePasswordModal onClose={() => setShowChangePass(false)} />}
+      {showChangeUsername && <ChangeUsernameModal onClose={() => setShowChangeUsername(false)} onSave={contextRefresh} />}
     </View>
   )
 }

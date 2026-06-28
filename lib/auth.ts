@@ -46,6 +46,13 @@ export async function changePassword(
   })
 }
 
+export async function changeUsername(newUsername: string): Promise<{ success: boolean; user: User }> {
+  return api('/auth/change-username', {
+    method: 'POST',
+    body: JSON.stringify({ new_username: newUsername }),
+  })
+}
+
 export const INTERNAL_ROLES = ['Super-Admin', 'Admin']
 export const CLIENT_ROLES = ['Client-Admin', 'Client-User']
 
