@@ -189,12 +189,13 @@ function JobCard({ job, onRefresh, canEdit }: { job: Job; onRefresh: () => void;
 }
 
 // ─── Project Tracker tab ────────────────────────────────
+// Using Ionicons names (no lucide dependencies)
 const TRACKER_STAGES = [
-  { key: 'Open', label: 'Submitted', icon: ClipboardCheck },
-  { key: 'In Progress', label: 'Processing', icon: Activity },
-  { key: 'Done', label: 'QC Done', icon: Layers },
-  { key: 'Delivery', label: 'Delivered', icon: Camera },
-]
+  { key: 'Open',        label: 'Submitted',  iconName: 'clipboard-outline'   },
+  { key: 'In Progress', label: 'Processing', iconName: 'pulse-outline'       },
+  { key: 'Done',        label: 'QC Done',    iconName: 'layers-outline'      },
+  { key: 'Delivery',    label: 'Delivered',  iconName: 'camera-outline'      },
+] as const
 
 function ProjectTracker({ jobs }: { jobs: Job[] }) {
   const doneCount = jobs.filter((j) => j.sc_status === 'Done' || j.uni_status === 'Done').length
