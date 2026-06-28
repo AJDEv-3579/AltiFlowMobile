@@ -50,6 +50,8 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [saving, setSaving] = useState(false)
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNext, setShowNext] = useState(false)
 
   async function handleChange() {
     if (!current || !next) return Alert.alert('Missing', 'Please fill in both fields.')
@@ -76,9 +78,41 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
       <View style={{ backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.border, padding: 24, width: '100%' }}>
         <Text style={{ color: colors.textPrimary, fontWeight: '800', fontSize: 20, marginBottom: 20 }}>Change Password</Text>
         <Text style={{ color: colors.textMuted, fontSize: 11, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase' }}>Current Password</Text>
-        <TextInput value={current} onChangeText={setCurrent} secureTextEntry placeholder="Current password" placeholderTextColor={colors.textDim} style={inputStyle} />
+        <View style={{ position: 'relative' }}>
+          <TextInput
+            value={current}
+            onChangeText={setCurrent}
+            secureTextEntry={!showCurrent}
+            placeholder="Current password"
+            placeholderTextColor={colors.textDim}
+            style={[inputStyle, { paddingRight: 48 }]}
+          />
+          <TouchableOpacity
+            onPress={() => setShowCurrent(!showCurrent)}
+            style={{ position: 'absolute', right: 12, top: 10, padding: 4 }}
+          >
+            <Ionicons name={showCurrent ? "eye-off-outline" : "eye-outline"} size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+
         <Text style={{ color: colors.textMuted, fontSize: 11, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase' }}>New Password</Text>
-        <TextInput value={next} onChangeText={setNext} secureTextEntry placeholder="New password (min 8 chars)" placeholderTextColor={colors.textDim} style={inputStyle} />
+        <View style={{ position: 'relative' }}>
+          <TextInput
+            value={next}
+            onChangeText={setNext}
+            secureTextEntry={!showNext}
+            placeholder="New password (min 8 chars)"
+            placeholderTextColor={colors.textDim}
+            style={[inputStyle, { paddingRight: 48 }]}
+          />
+          <TouchableOpacity
+            onPress={() => setShowNext(!showNext)}
+            style={{ position: 'absolute', right: 12, top: 10, padding: 4 }}
+          >
+            <Ionicons name={showNext ? "eye-off-outline" : "eye-outline"} size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
           <TouchableOpacity onPress={onClose} style={{ flex: 1, backgroundColor: colors.borderMuted, borderRadius: 12, paddingVertical: 14, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}>
             <Text style={{ color: colors.textMuted, fontWeight: '600' }}>Cancel</Text>
