@@ -255,7 +255,7 @@ function ProjectTracker({ jobs }: { jobs: Job[] }) {
               borderWidth: 2, borderColor: job.sc_status === 'Done' ? colors.success : colors.border,
               alignItems: 'center', justifyContent: 'center',
             }}>
-              <Camera size={14} color={job.sc_status === 'Done' ? colors.success : colors.textDim} />
+              <Ionicons name="camera-outline" size={14} color={job.sc_status === 'Done' ? colors.success : colors.textDim} />
             </View>
             {idx < 9 && <View style={{ width: 2, flex: 1, backgroundColor: colors.borderMuted, marginTop: 4 }} />}
           </View>
@@ -282,8 +282,8 @@ export default function JobsScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [activeTab, setActiveTab] = useState<'jobs' | 'tracker'>('jobs')
 
-  // Client-Admin can create. Admin/Super-Admin can edit stages.
-  const canCreate = isClientAdmin(user?.role) || isInternal(user?.role)
+  // Everyone can create. Admin/Super-Admin can edit stages.
+  const canCreate = true
   const canEdit = isInternal(user?.role)
 
   async function load(isRefresh = false) {
