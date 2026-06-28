@@ -1,35 +1,57 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, RefreshControl,
   ActivityIndicator, Alert,
 } from 'react-native'
+import { useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api'
+import { isInternal, isClientAdmin } from '../../lib/auth'
+import { colors, STATUS_COLORS } from '../../lib/design'
 import type { Job } from '../../lib/types'
-import { router } from 'expo-router'
+import { ClipboardList, ChevronDown, ChevronUp, User, Calendar, Layers } from 'lucide-react-native'
 
-const STAGE_COLORS: Record<string, { bg: string; text: string }> = {
-  'Pending': { bg: '#1e3a5f', text: '#60a5fa' },
-  'In Progress': { bg: '#1a3a2a', text: '#34d399' },
-  'Done': { bg: '#14532d', text: '#86efac' },
-  'Blocked': { bg: '#3b1212', text: '#fca5a5' },
-  'Cancelled': { bg: '#3b1212', text: '#fca5a5' },
-}
+const STAGES = ['Pending', 'In Progress', 'Done', 'Blocked']
 
-function StageBadge({ stage }: { stage: string }) {
-  const c = STAGE_COLORS[stage] || { bg: '#1a1a2e', text: '#a1a1aa' }
+function StagePicker({
+  label, current, onSelect, disabled,
+}: { label: string; current: string; onSelect: (s: string) => void; disabled: boolean }) {
   return (
-    <View style={{ backgroundColor: c.bg, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 }}>
-      <Text style={{ color: c.text, fontSize: 11, fontWeight: '600' }}>{stage}</Text>
+    <View style={{ marginBottom: 14 }}>
+      <Text style={{ color: colors.textMuted, fontSize: 11, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+        {label}
+      </Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          {STAGES.map((s) => {
+            const active = current === s
+            const sc = STATUS_COLORS[s] || { bg: colors.border, text: colors.textMuted, border: colors.border }
+            return (
+              <TouchableOpacity
+                key={s}
+                onPress={() => onSelect(s)}
+                disabled={disabled || active}
+                style={{
+                  paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10,
+                  backgroundColor: active ? sc.bg : colors.borderMuted,
+                  borderWidth: 1, borderColor: active ? sc.border : colors.border,
+                }}
+              >
+                <Text style={{ color: active ? sc.text : colors.textFaint, fontSize: 12, fontWeight: active ? '700' : '500' }}>
+                  {s}
+                </Text>
+              </TouchableOpacity>
+            )
+          })}
+        </View>
+      </ScrollView>
     </View>
   )
 }
 
-function AssignedJobCard({ job }: { job: Job }) {
+function AssignedJobCard({ job, canUpdate }: { job: Job; canUpdate: boolean }) {
   const [expanded, setExpanded] = useState(false)
   const [updating, setUpdating] = useState(false)
-
-  const STAGES = ['Pending', 'In Progress', 'Done', 'Blocked']
 
   async function updateStatus(field: 'sc_status' | 'uni_status', newStage: string) {
     setUpdating(true)
@@ -38,7 +60,6 @@ function AssignedJobCard({ job }: { job: Job }) {
         method: 'PATCH',
         body: JSON.stringify({ [field]: newStage }),
       })
-      Alert.alert('Updated', `Stage changed to ${newStage}`)
     } catch (e: any) {
       Alert.alert('Error', e.message)
     } finally {
@@ -46,87 +67,84 @@ function AssignedJobCard({ job }: { job: Job }) {
     }
   }
 
+  const hasSc = job.sc_status && job.sc_status !== 'Yet to Upload'
+  const hasUni = job.uni_status && job.uni_status !== 'Yet to Upload'
+
   return (
-    <View style={{
-      backgroundColor: '#13131f', borderRadius: 16, borderWidth: 1,
-      borderColor: '#2a2a3d', marginBottom: 12, overflow: 'hidden',
-    }}>
+    <View style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, marginBottom: 10, overflow: 'hidden' }}>
       <TouchableOpacity onPress={() => setExpanded(!expanded)} activeOpacity={0.8} style={{ padding: 16 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, marginRight: 8 }}>
-            <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 14 }}>{job.title}</Text>
-            <Text style={{ color: '#71717a', fontSize: 12, marginTop: 4 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 14 }}>{job.title}</Text>
+            <Text style={{ color: colors.textFaint, fontSize: 12, marginTop: 4 }}>
               {job.project_name || 'Unknown Project'}
-              {job.client_name ? ` • ${job.client_name}` : ''}
+              {job.client_name ? ` · ${job.client_name}` : ''}
             </Text>
           </View>
-          <Text style={{ color: '#71717a', fontSize: 16 }}>{expanded ? '▲' : '▼'}</Text>
+          {expanded ? <ChevronUp size={18} color={colors.textDim} /> : <ChevronDown size={18} color={colors.textDim} />}
         </View>
-        <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
+
+        {/* Status chips */}
+        <View style={{ flexDirection: 'row', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
           {job.category && (
-            <View style={{ backgroundColor: '#312e81', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
-              <Text style={{ color: '#a5b4fc', fontSize: 10, fontWeight: '600' }}>{job.category}</Text>
+            <View style={{ backgroundColor: colors.purpleMuted, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: colors.purple + '30' }}>
+              <Text style={{ color: colors.purpleText, fontSize: 10, fontWeight: '600' }}>{job.category}</Text>
             </View>
           )}
-          {job.sc_status && job.sc_status !== 'Yet to Upload' && <StageBadge stage={job.sc_status} />}
-          {job.uni_status && job.uni_status !== 'Yet to Upload' && <StageBadge stage={job.uni_status} />}
+          {hasSc && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text style={{ color: colors.textDim, fontSize: 10 }}>SC:</Text>
+              <View style={{ backgroundColor: (STATUS_COLORS[job.sc_status!] || STATUS_COLORS['Pending']).bg, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+                <Text style={{ color: (STATUS_COLORS[job.sc_status!] || STATUS_COLORS['Pending']).text, fontSize: 10, fontWeight: '600' }}>{job.sc_status}</Text>
+              </View>
+            </View>
+          )}
+          {hasUni && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text style={{ color: colors.textDim, fontSize: 10 }}>Uni:</Text>
+              <View style={{ backgroundColor: (STATUS_COLORS[job.uni_status!] || STATUS_COLORS['Pending']).bg, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+                <Text style={{ color: (STATUS_COLORS[job.uni_status!] || STATUS_COLORS['Pending']).text, fontSize: 10, fontWeight: '600' }}>{job.uni_status}</Text>
+              </View>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
 
       {expanded && (
-        <View style={{ borderTopWidth: 1, borderTopColor: '#2a2a3d', padding: 16 }}>
-          {job.sc_status && job.sc_status !== 'Yet to Upload' && (
-            <View style={{ marginBottom: 12 }}>
-              <Text style={{ color: '#a1a1aa', fontSize: 11, marginBottom: 8, fontWeight: '600' }}>Stand Count Stage</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ flexDirection: 'row', gap: 6 }}>
-                  {STAGES.map((s) => (
-                    <TouchableOpacity
-                      key={s}
-                      onPress={() => updateStatus('sc_status', s)}
-                      disabled={updating}
-                      style={{
-                        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8,
-                        backgroundColor: job.sc_status === s ? '#4338ca' : '#1a1a2e',
-                        borderWidth: 1, borderColor: job.sc_status === s ? '#6366f1' : '#2a2a3d',
-                      }}
-                    >
-                      <Text style={{ color: job.sc_status === s ? '#c7d2fe' : '#71717a', fontSize: 12 }}>{s}</Text>
-                    </TouchableOpacity>
-                  ))}
+        <View style={{ borderTopWidth: 1, borderTopColor: colors.border, padding: 16 }}>
+          <View style={{ flexDirection: 'row', gap: 14, marginBottom: 14 }}>
+            {job.capture_date && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Calendar size={12} color={colors.textFaint} />
+                <Text style={{ color: colors.textFaint, fontSize: 12 }}>
+                  {new Date(job.capture_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                </Text>
+              </View>
+            )}
+            {job.drone_name && (
+              <Text style={{ color: colors.textFaint, fontSize: 12 }}>✈ {job.drone_name}</Text>
+            )}
+          </View>
+
+          {canUpdate && hasSc && (
+            <StagePicker label="Stand Count" current={job.sc_status!} onSelect={(s) => updateStatus('sc_status', s)} disabled={updating} />
+          )}
+          {canUpdate && hasUni && (
+            <StagePicker label="Uniformity" current={job.uni_status!} onSelect={(s) => updateStatus('uni_status', s)} disabled={updating} />
+          )}
+
+          {/* Comments */}
+          {(job.comments_log || []).length > 0 && (
+            <View style={{ borderTopWidth: 1, borderTopColor: colors.borderMuted, paddingTop: 12, marginTop: 4 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 11, fontWeight: '600', marginBottom: 8 }}>Recent Activity</Text>
+              {job.comments_log!.slice(0, 3).map((c) => (
+                <View key={c.id} style={{ marginBottom: 8 }}>
+                  <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '600' }}>{c.username} · {c.stage}</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>{c.comment}</Text>
                 </View>
-              </ScrollView>
+              ))}
             </View>
           )}
-          {job.uni_status && job.uni_status !== 'Yet to Upload' && (
-            <View style={{ marginBottom: 12 }}>
-              <Text style={{ color: '#a1a1aa', fontSize: 11, marginBottom: 8, fontWeight: '600' }}>Uniformity Stage</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ flexDirection: 'row', gap: 6 }}>
-                  {STAGES.map((s) => (
-                    <TouchableOpacity
-                      key={s}
-                      onPress={() => updateStatus('uni_status', s)}
-                      disabled={updating}
-                      style={{
-                        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8,
-                        backgroundColor: job.uni_status === s ? '#4338ca' : '#1a1a2e',
-                        borderWidth: 1, borderColor: job.uni_status === s ? '#6366f1' : '#2a2a3d',
-                      }}
-                    >
-                      <Text style={{ color: job.uni_status === s ? '#c7d2fe' : '#71717a', fontSize: 12 }}>{s}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-          )}
-          {(job.comments_log || []).slice(0, 3).map((c) => (
-            <View key={c.id} style={{ marginBottom: 6 }}>
-              <Text style={{ color: '#818cf8', fontSize: 11 }}>{c.username} • {c.stage}</Text>
-              <Text style={{ color: '#e4e4e7', fontSize: 12, marginTop: 2 }}>{c.comment}</Text>
-            </View>
-          ))}
         </View>
       )}
     </View>
@@ -138,6 +156,8 @@ export default function AssignedScreen() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+
+  const canUpdate = isInternal(user?.role)
 
   async function load(isRefresh = false) {
     if (isRefresh) setRefreshing(true)
@@ -154,37 +174,34 @@ export default function AssignedScreen() {
   }
 
   useEffect(() => { load() }, [])
+  useFocusEffect(useCallback(() => { load(true) }, []))
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0a0f' }}>
-      <View style={{
-        paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
-        backgroundColor: '#0f0f1a', borderBottomWidth: 1, borderBottomColor: '#2a2a3d',
-      }}>
-        <Text style={{ color: '#818cf8', fontSize: 12, fontWeight: '600', letterSpacing: 1 }}>✈ ALTIFLOW</Text>
-        <Text style={{ color: '#ffffff', fontSize: 24, fontWeight: '800', marginTop: 2 }}>My Jobs</Text>
-        <Text style={{ color: '#71717a', fontSize: 13 }}>Jobs assigned to you</Text>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View style={{ paddingTop: 56, paddingBottom: 12, paddingHorizontal: 20, backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>AltiFlow</Text>
+        <Text style={{ color: colors.textPrimary, fontSize: 26, fontWeight: '800', marginTop: 2 }}>My Jobs</Text>
+        <Text style={{ color: colors.textFaint, fontSize: 13 }}>{jobs.length} assigned to you</Text>
       </View>
 
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator color="#818cf8" size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>
       ) : (
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ padding: 16 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#818cf8" />}
+          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.primary} />}
         >
           {jobs.length === 0 ? (
-            <View style={{ alignItems: 'center', marginTop: 64 }}>
-              <Text style={{ fontSize: 48 }}>📋</Text>
-              <Text style={{ color: '#71717a', marginTop: 12 }}>No jobs assigned to you</Text>
+            <View style={{ alignItems: 'center', marginTop: 80 }}>
+              <ClipboardList size={52} color={colors.border} />
+              <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>No jobs assigned to you</Text>
             </View>
           ) : (
-            jobs.map((job) => <AssignedJobCard key={job.id} job={job} />)
+            jobs.map((job) => <AssignedJobCard key={job.id} job={job} canUpdate={canUpdate} />)
           )}
-          <View style={{ height: 32 }} />
         </ScrollView>
       )}
     </View>

@@ -2,93 +2,146 @@ import { useEffect } from 'react'
 import { Tabs, router } from 'expo-router'
 import { View, Text, Platform } from 'react-native'
 import { useAuth } from '../../context/AuthContext'
-import { isInternal, isClient } from '../../lib/auth'
+import { isInternal } from '../../lib/auth'
 import { BlurView } from 'expo-blur'
+import {
+  BarChart2, FolderOpen, ClipboardList, Briefcase,
+  Settings, Users, Home, TicketCheck,
+} from 'lucide-react-native'
+import { colors } from '../../lib/design'
 
-function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focused: boolean }) {
+function TabIcon({
+  Icon, label, focused,
+}: {
+  Icon: React.ComponentType<{ size: number; color: string; strokeWidth?: number }>
+  label: string
+  focused: boolean
+}) {
+  const col = focused ? colors.primary : colors.textFaint
   return (
-    <View style={{ alignItems: 'center', paddingTop: 6, opacity: focused ? 1 : 0.6 }}>
-      <Text style={{ fontSize: 20, marginBottom: 2 }}>{emoji}</Text>
-      <Text style={{
-        fontSize: 10,
-        fontWeight: focused ? '700' : '500',
-        color: focused ? '#3b82f6' : '#a1a1aa',
-      }}>{label}</Text>
+    <View style={{ alignItems: 'center', paddingTop: 8 }}>
+      <Icon size={22} color={col} strokeWidth={focused ? 2.2 : 1.8} />
+      <Text
+        style={{
+          fontSize: 10,
+          marginTop: 3,
+          fontWeight: focused ? '700' : '500',
+          color: col,
+          letterSpacing: 0.2,
+        }}
+      >
+        {label}
+      </Text>
     </View>
   )
+}
+
+const TAB_BAR_STYLE = {
+  position: 'absolute' as const,
+  backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.card,
+  borderTopColor: 'rgba(255,255,255,0.06)',
+  borderTopWidth: 1,
+  height: Platform.OS === 'ios' ? 80 : 68,
+  elevation: 0,
+  paddingBottom: Platform.OS === 'ios' ? 20 : 6,
 }
 
 export default function AppLayout() {
   const { user, loading } = useAuth()
 
-  if (loading) return null;
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/(auth)')
+    }
+  }, [loading, user])
 
-  if (!user) {
-    return null;
-  }
+  if (loading || !user) return null
 
-  const showAdmin = isInternal(user.role)
+  const isAdmin = isInternal(user.role)
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: Platform.OS === 'ios' ? 'transparent' : '#0f0f14',
-          borderTopColor: 'rgba(255,255,255,0.05)',
-          borderTopWidth: 1,
-          height: 64,
-          elevation: 0,
-        },
-        tabBarBackground: () => (
+        tabBarStyle: TAB_BAR_STYLE,
+        tabBarBackground: () =>
           Platform.OS === 'ios' ? (
-            <BlurView tint="dark" intensity={80} style={{ flex: 1, backgroundColor: 'rgba(9, 9, 11, 0.7)' }} />
-          ) : null
-        ),
-        tabBarActiveTintColor: '#3b82f6',
-        tabBarInactiveTintColor: '#a1a1aa',
+            <BlurView
+              tint="dark"
+              intensity={85}
+              style={{ flex: 1, backgroundColor: 'rgba(9, 9, 11, 0.75)' }}
+            />
+          ) : null,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textFaint,
         tabBarShowLabel: false,
       }}
     >
+      {/* ── Dashboard ── */}
       <Tabs.Screen
         name="dashboard"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" label="Dashboard" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={BarChart2} label="Dashboard" focused={focused} />
+          ),
         }}
       />
+
+      {/* ── Pipeline (admin only) ── */}
+      <Tabs.Screen
+        name="pipeline"
+        options={{
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={Briefcase} label="Pipeline" focused={focused} />
+          ),
+        }}
+      />
+
+      {/* ── Projects / Workspaces ── */}
       <Tabs.Screen
         name="projects"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📁" label="Projects" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={FolderOpen} label="Projects" focused={focused} />
+          ),
         }}
       />
-      <Tabs.Screen
-        name="jobs/[projectId]"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="jobs/create"
-        options={{
-          href: null,
-          presentation: 'modal',
-        }}
-      />
+
+      {/* ── Assigned Jobs (admin only) ── */}
       <Tabs.Screen
         name="assigned"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📋" label="Assigned" focused={focused} />,
-          href: showAdmin ? undefined : null, // Hide from tab bar if not admin
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={ClipboardList} label="My Jobs" focused={focused} />
+          ),
         }}
       />
+
+      {/* ── Support ── */}
+      <Tabs.Screen
+        name="support"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={TicketCheck} label="Support" focused={focused} />
+          ),
+        }}
+      />
+
+      {/* ── Settings ── */}
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" label="Settings" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon Icon={Settings} label="Settings" focused={focused} />
+          ),
         }}
       />
+
+      {/* ── Hidden screens ── */}
+      <Tabs.Screen name="jobs/[projectId]" options={{ href: null }} />
+      <Tabs.Screen name="jobs/create" options={{ href: null, presentation: 'modal' }} />
     </Tabs>
   )
 }

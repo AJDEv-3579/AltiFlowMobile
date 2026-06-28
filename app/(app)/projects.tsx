@@ -1,20 +1,31 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
-  View, Text, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator,
-  TextInput,
+  View, Text, ScrollView, TouchableOpacity, RefreshControl,
+  ActivityIndicator, TextInput,
 } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api'
+import { isInternal } from '../../lib/auth'
+import { colors, STATUS_COLORS } from '../../lib/design'
 import type { ClientProject } from '../../lib/types'
-import { isClient } from '../../lib/auth'
+import { Search, ChevronRight, FolderOpen, Calendar, User } from 'lucide-react-native'
+
+function StatusBadge({ status }: { status: string }) {
+  const sc = STATUS_COLORS[status] || { bg: colors.border, text: colors.textMuted, border: colors.border }
+  return (
+    <View style={{ backgroundColor: sc.bg, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: sc.border }}>
+      <Text style={{ color: sc.text, fontSize: 11, fontWeight: '600' }}>{status}</Text>
+    </View>
+  )
+}
 
 function ProjectCard({ project, onPress }: { project: ClientProject; onPress: () => void }) {
   const startDate = project.start_date
-    ? new Date(project.start_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+    ? new Date(project.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : '—'
   const endDate = project.end_date
-    ? new Date(project.end_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+    ? new Date(project.end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : 'Ongoing'
 
   return (
@@ -22,33 +33,40 @@ function ProjectCard({ project, onPress }: { project: ClientProject; onPress: ()
       onPress={onPress}
       activeOpacity={0.75}
       style={{
-        backgroundColor: '#0f0f14', borderRadius: 16, borderWidth: 1,
-        borderColor: '#222228', padding: 18, marginBottom: 12,
+        backgroundColor: colors.card, borderRadius: 16, borderWidth: 1,
+        borderColor: colors.border, padding: 16, marginBottom: 10,
       }}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <View style={{ flex: 1, marginRight: 12 }}>
-          <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 15, marginBottom: 4 }}>
+          <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 15, marginBottom: 6 }} numberOfLines={2}>
             {project.name}
           </Text>
-          <View style={{
-            backgroundColor: '#1e1e24', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3,
-            alignSelf: 'flex-start', marginBottom: 8,
-          }}>
-            <Text style={{ color: '#3b82f6', fontSize: 11, fontWeight: '600' }}>{project.type}</Text>
+          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+            <View style={{ backgroundColor: colors.primaryMuted, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: colors.primary + '30' }}>
+              <Text style={{ color: colors.primaryText, fontSize: 11, fontWeight: '600' }}>{project.type}</Text>
+            </View>
+            {project.client_name && (
+              <Text style={{ color: colors.textFaint, fontSize: 12 }}>{project.client_name}</Text>
+            )}
           </View>
-          {project.client_name && (
-            <Text style={{ color: '#a1a1aa', fontSize: 12 }}>🏢 {project.client_name}</Text>
-          )}
         </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={{ color: '#10b981', fontSize: 18 }}>›</Text>
-        </View>
+        <ChevronRight size={18} color={colors.textDim} />
       </View>
-      <View style={{ flexDirection: 'row', gap: 16, marginTop: 8, borderTopWidth: 1, borderTopColor: '#222228', paddingTop: 10 }}>
-        <Text style={{ color: '#a1a1aa', fontSize: 11 }}>📅 {startDate}</Text>
-        <Text style={{ color: '#a1a1aa', fontSize: 11 }}>→ {endDate}</Text>
-        <Text style={{ color: '#a1a1aa', fontSize: 11 }}>👤 {project.head}</Text>
+
+      <View style={{ flexDirection: 'row', gap: 14, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.borderMuted }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Calendar size={11} color={colors.textFaint} />
+          <Text style={{ color: colors.textFaint, fontSize: 11 }}>{startDate}</Text>
+        </View>
+        <Text style={{ color: colors.textDim, fontSize: 11 }}>→</Text>
+        <Text style={{ color: colors.textFaint, fontSize: 11 }}>{endDate}</Text>
+        {project.head && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
+            <User size={11} color={colors.textFaint} />
+            <Text style={{ color: colors.textFaint, fontSize: 11 }} numberOfLines={1}>{project.head}</Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   )
@@ -76,68 +94,54 @@ export default function ProjectsScreen() {
   }
 
   useEffect(() => { load() }, [])
+  useFocusEffect(useCallback(() => { load(true) }, []))
 
-  useFocusEffect(
-    useCallback(() => {
-      load(true)
-    }, [])
-  )
-
-  const filtered = projects.filter((p) => {
-    const q = search.toLowerCase()
-    return (
+  const q = search.toLowerCase()
+  const filtered = projects.filter(
+    (p) =>
       p.name.toLowerCase().includes(q) ||
       (p.type || '').toLowerCase().includes(q) ||
+      (p.client_name || '').toLowerCase().includes(q) ||
       (p.head || '').toLowerCase().includes(q)
-    )
-  })
+  )
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#09090b' }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       {/* Header */}
-      <View style={{
-        paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
-        backgroundColor: '#0f0f14', borderBottomWidth: 1, borderBottomColor: '#222228',
-      }}>
-        <Text style={{ color: '#3b82f6', fontSize: 12, fontWeight: '600', letterSpacing: 1 }}>
-          ✈ ALTIFLOW
-        </Text>
-        <Text style={{ color: '#fafafa', fontSize: 24, fontWeight: '800', marginTop: 2 }}>
-          Projects
-        </Text>
+      <View style={{ paddingTop: 56, paddingBottom: 12, paddingHorizontal: 20, backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>AltiFlow</Text>
+        <Text style={{ color: colors.textPrimary, fontSize: 26, fontWeight: '800', marginTop: 2 }}>Projects</Text>
+        <Text style={{ color: colors.textFaint, fontSize: 13 }}>{projects.length} project{projects.length !== 1 ? 's' : ''}</Text>
       </View>
 
       {/* Search */}
-      <View style={{ paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#09090b' }}>
-        <View style={{
-          backgroundColor: '#0f0f14', borderRadius: 12, borderWidth: 1,
-          borderColor: '#222228', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12,
-        }}>
-          <Text style={{ color: '#a1a1aa', marginRight: 8, fontSize: 16 }}>🔍</Text>
+      <View style={{ paddingHorizontal: 16, paddingVertical: 10, backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: colors.borderMuted }}>
+        <View style={{ backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.border, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
+          <Search size={16} color={colors.textFaint} />
           <TextInput
             value={search}
             onChangeText={setSearch}
             placeholder="Search projects…"
-            placeholderTextColor="#71717a"
-            style={{ flex: 1, color: '#fafafa', paddingVertical: 10, fontSize: 14 }}
+            placeholderTextColor={colors.textDim}
+            style={{ flex: 1, color: colors.textPrimary, paddingVertical: 10, fontSize: 14, marginLeft: 8 }}
           />
         </View>
       </View>
 
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator color="#3b82f6" size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>
       ) : (
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#3b82f6" />}
+          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.primary} />}
         >
           {filtered.length === 0 ? (
-            <View style={{ alignItems: 'center', marginTop: 64 }}>
-              <Text style={{ fontSize: 48 }}>📁</Text>
-              <Text style={{ color: '#a1a1aa', marginTop: 12, fontSize: 15 }}>
+            <View style={{ alignItems: 'center', marginTop: 80 }}>
+              <FolderOpen size={52} color={colors.border} />
+              <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>
                 {search ? 'No projects match your search' : 'No projects found'}
               </Text>
             </View>
@@ -150,7 +154,6 @@ export default function ProjectsScreen() {
               />
             ))
           )}
-          <View style={{ height: 32 }} />
         </ScrollView>
       )}
     </View>
