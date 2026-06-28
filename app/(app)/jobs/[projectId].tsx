@@ -319,8 +319,8 @@ export default function JobsScreen() {
   }, [jobs])
 
   const TABS = [
-    { key: 'jobs' as const, label: 'Job Cards', Icon: ClipboardCheck },
-    { key: 'tracker' as const, label: 'Project Tracker', Icon: Activity },
+    { key: 'jobs' as const, label: 'Job Cards', iconName: 'clipboard-outline' as const },
+    { key: 'tracker' as const, label: 'Project Tracker', iconName: 'pulse-outline' as const },
   ]
 
   return (
@@ -329,7 +329,7 @@ export default function JobsScreen() {
       <View style={{ paddingTop: 56, paddingBottom: 0, paddingHorizontal: 20, backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft size={22} color={colors.primary} />
+            <Ionicons name="arrow-back" size={22} color={colors.primary} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>Job Cards</Text>
@@ -342,7 +342,7 @@ export default function JobsScreen() {
               onPress={() => router.push(`/(app)/jobs/create?projectId=${projectId}`)}
               style={{ backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 9, flexDirection: 'row', alignItems: 'center', gap: 6 }}
             >
-              <Plus size={16} color="#fff" />
+              <Ionicons name="add" size={16} color="#fff" />
               <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>New</Text>
             </TouchableOpacity>
           )}
@@ -362,7 +362,7 @@ export default function JobsScreen() {
                   borderBottomWidth: 2.5, borderBottomColor: active ? colors.primary : 'transparent',
                 }}
               >
-                <tab.Icon size={14} color={active ? colors.primary : colors.textFaint} />
+                <Ionicons name={tab.iconName} size={14} color={active ? colors.primary : colors.textFaint} />
                 <Text style={{ color: active ? colors.primary : colors.textFaint, fontWeight: active ? '700' : '500', fontSize: 13 }}>
                   {tab.label}
                 </Text>
@@ -380,7 +380,7 @@ export default function JobsScreen() {
         <ProjectTracker jobs={jobs} />
       ) : jobs.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
-          <ClipboardCheck size={52} color={colors.border} />
+          <Ionicons name="clipboard-outline" size={52} color={colors.border} />
           <Text style={{ color: colors.textFaint, marginTop: 14, fontSize: 15 }}>No job cards yet</Text>
           {canCreate && (
             <TouchableOpacity
